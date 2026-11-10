@@ -170,6 +170,28 @@ def rename_a(code, new_name):
     return "".join(out)
 
 
+def free_name(code, name):
+    """Make `name` free for the instantiated function: if the code already uses
+    it (a file's own helper may be called A077124_u64, the default name at
+    --width u64), rename that identifier, outside comments and strings, to a
+    fresh one. Returns (code, the identifier's new name or None)."""
+    m = mask(code, directives=False)
+    pat = re.compile(rf"(?<![\w]){re.escape(name)}(?!\w)")
+    if not pat.search(m):
+        return code, None
+    taken = set(re.findall(r"[A-Za-z_]\w*", m))
+    new, k = f"{name}_own", 2
+    while new in taken:
+        new, k = f"{name}_own{k}", k + 1
+    out, last = [], 0
+    for hit in pat.finditer(m):
+        out.append(code[last:hit.start()])
+        out.append(new)
+        last = hit.end()
+    out.append(code[last:])
+    return "".join(out), new
+
+
 # ── --inline: HELPER BODIES INTO THEIR CALLERS ─────────────────────────────
 #
 # A call f(x, y) to a helper `static R f(T1 p, T2 q) { ... }` becomes a GNU
@@ -552,6 +574,10 @@ def main(argv=None):
         code_parts += [f"/* -- helper {hname} (db/utils/{hname}.h) -- */", _GUARD.sub("", htext).strip(), ""]
     code_parts.append(body)
     code = "\n".join(code_parts)
+    code, renamed = free_name(code, name)
+    if renamed:
+        print(f"instantiate: the code's own {name} is renamed {renamed}, so that {name} "
+              f"is the instantiated function", file=sys.stderr)
     if args.inline:
         code, kept = inline_helpers(code, cxx=variant.big)
         if kept:

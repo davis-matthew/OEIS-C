@@ -8,41 +8,19 @@ Every function is written once, generically, and can be built at any integer wid
 
 ```
 db/
-  A000/A000045.c        one function per sequence
-  A001/...
-  ...
-  utils/gcd.h           shared generic helpers, one per header, included as "../utils/gcd.h"
-  runtime/oeis_big.hpp  the arbitrary-precision seq_t (GMP wrapper)
+  A###/A######.c        sequence implementation files grouped by first three digits (same as [oeisdata](https://github.com/oeis/oeisdata))
+  utils                 utility functions used in multiple sequences (e.g. gcd, isprime, etc.)
+  runtime/oeis_big.hpp  arbitrary-precision GMP wrapper
 tools/
-  instantiate.py        make a standalone file for one width
-  validate.py           check functions against the OEIS; updates headers and the status files
+  instantiate.py        script to generate a specific-width implementation instance
+  validate.py           checks implementation against OEIS values and updates status
 status.tsv              one row per OEIS sequence: status, validation result, bounds per width
 STATUS.md               summary of status.tsv
-data/                   (not committed) oeisdata clone and b-file cache used by validate.py
 ```
 
-Sequences are grouped 1000 to a folder, named after the sequence ID without its last three digits: `A000045` is in `db/A000/`, and `A123456` is in `db/A123/`.
+## Implementation Files
 
-## The generic function
-
-Each file defines exactly one function:
-
-```c
-seq_t a(idx_t n);
-```
-
-`a(n)` returns the n-th term, indexed from the sequence's OEIS offset. The function is written against two types that **you** supply before the code:
-
-| Type    | Meaning | Choices |
-|---------|---------|---------|
-| `seq_t` | term values | `uint8_t` … `unsigned __int128` for sequences with the `nonn` keyword (all terms ≥ 0); `int8_t` … `__int128` otherwise; or `oeis_big` for arbitrary precision |
-| `idx_t` | the index `n` | `uint64_t`, or `int64_t` for sequences with a negative offset |
-
-The code is valid C11 and C++17 alike. The fixed widths compile as C, and the arbitrary-precision build is the same source compiled as C++ with `seq_t = oeis_big`. `oeis_big` wraps GMP's `mpz_class` so that it behaves like a native integer: it mixes with every native type, including `long long` and `__int128`, `/` and `%` truncate toward zero as in C, and converting back to a native type is explicit and keeps the low bits.
-
-### File header
-
-Every file starts with a standard comment:
+### Header:
 
 ```c
 /*
@@ -61,125 +39,75 @@ Every file starts with a standard comment:
  * Sequence data from the OEIS (https://oeis.org), licensed CC BY-SA 4.0.
  */
 ```
+- **Offset**: the index of the first term
+- **Formula**: what the code computes
+- **Range**: for each width, the largest `n` through which the function was checked to be exact 
+- **Validated**: validation status and date
+- **Helpers**: the `db/utils` headers the sequence relies on
 
-- **Offset**: the index of the first term.
-- **Formula**: what the code computes. Long formulas are abbreviated; see the OEIS entry for the full text.
-- **Range**: for each width, the largest `n` through which the function was checked to be exact. Even when every known term fits, a fixed width is capped at the last known index, because nothing beyond the data shows it keeps fitting. `none` means even the first term doesn't fit. Results beyond the stated range are not guaranteed: they may overflow silently.
-- **Validated**: how the Range was last checked by `tools/validate.py`: the style, the result, and the terms checked with arbitrary precision. Files not yet re-validated don't have this line.
-- **Helpers**: the `db/utils` headers the function includes.
+### Function:
 
-### Shared helpers
+```c
+seq_t a(idx_t n)
+{
+    seq_t x = 0, y = 1;
+    idx_t i;
+    for (i = 0; i < n; i++) {
+        seq_t t = x + y;
+        x = y;
+        y = t;
+    }
+    return x;
+}
+```
 
-`db/utils` holds only generic routines that several sequences use: `gcd`, `isqrt`, `is_prime`, `binomial`, `powmod`, digit sums, prime sieves and so on. Each header has one function, written against `seq_t` and `idx_t` like the sequences. A routine that several signatures need has one header per signature: the most used signature has the plain name, and the others add their parameter types and, if only the return type differs, `_to_` and that type. So `gcd` takes and returns `seq_t`, `gcd_u64` uses `uint64_t`, and `num_digits_u64_to_u64` is `num_digits_u64` returning `uint64_t` rather than `int`. The signature matters: the arithmetic happens in those types, so the variants are not interchangeable. Helpers specific to one sequence, or to a few related ones, are written out in that sequence's own file.
+`a(n)` returns the n-th term, indexed from the sequence's OEIS offset. Typedefs allow you to choose the return and parameter bitwidths.
 
-Arrays of `seq_t` go through `db/utils/mem.h`: `mem_new`, `mem_resize`, `mem_free`, `mem_set`, `mem_copy`, `mem_move`, `mem_cmp`, `mem_qsort`. In C these are the libc calls. In C++ they construct, move and destroy the elements properly, which raw `malloc`, `realloc`, `memset`, `memcpy` or `qsort` cannot do for `oeis_big` (that is undefined behavior). Code added to the database should use them for any array that may hold `seq_t`.
+### Shared helpers:
+
+```c
+/* Greatest common divisor for seq_t values. */
+static seq_t gcd(seq_t a, seq_t b)
+{
+    while (b != 0) {
+        seq_t t = a % b;
+        a = b;
+        b = t;
+    }
+    return a;
+}
+```
+
+`db/utils` holds only generic routines that several sequences use: `gcd`, `is_prime`, etc. Each header has one function, written against `seq_t` and `idx_t` like the sequences. 
+
+If a sequence needs a helper which is not likely to be shared by many other sequences, these functions are included above a(n) in the implementation file instead.
+
+Memory operations (e.g. dynamic size arrays of `seq_t`) use `db/utils/mem.h`. Code added to the database should use them for any dynamic size allocations that may hold `seq_t`.
 
 ## Usage
 
-### Fixed width (C)
+`tools/instantiate.py` (Python 3, standard library only) produces a complete source file for one width.
 
-Define the types, then include the file:
+It typedefs the generic `seq_t` and `idx_t`,  copies in the `db/utils` helpers the sequence includes, and renames `a` after the sequence and width, e.g. `A000045_u32`. If the sequence's own code already uses that name (A077124 has a helper `A077124_u64`), that identifier is renamed, here to `A077124_u64_own`.
 
-```c
-#include <stdio.h>
-#include <stdint.h>
-typedef uint64_t seq_t;
-typedef uint64_t idx_t;
-#include "db/A000/A000045.c"
-
-int main(void) { printf("%llu\n", (unsigned long long)a(90)); }
-```
+If using width big, the file also includes the GMP wrapper `oeis_big.hpp`.
 
 ```sh
-gcc -std=c11 -O2 main.c -lm
-```
-
-### Arbitrary precision (C++ with GMP)
-
-```cpp
-#include <iostream>
-#include <stdint.h>
-#include "oeis_big.hpp"
-typedef oeis_big seq_t;
-typedef uint64_t idx_t;
-#include "db/A000/A000045.c"
-
-int main() { std::cout << a(1000) << '\n'; }
-```
-
-```sh
-g++ -std=gnu++17 -O2 -I db/runtime main.cpp -lgmpxx -lgmp -lm
-```
-
-### Standalone files and using several sequences together
-
-Every file names its function `a`, so two sequences can't be included in the same translation unit as they are. `tools/instantiate.py` (Python 3, standard library only) produces a complete source file for one width:
-
-- It keeps the file's header comment, which carries the OEIS attribution.
-- It defines `seq_t` and `idx_t` at the top.
-- It copies in the `db/utils` helpers the sequence includes, and the helpers those include, each once.
-- It renames `a` after the sequence and width, e.g. `A000045_u32`. `--name` picks another name.
-
-The fixed widths give C, and `big` gives C++ that includes `oeis_big.hpp`. The helpers are `static`, and each file has its own `seq_t`, so each output is its own translation unit and any number of them link into one program.
-
-```sh
-python3 tools/instantiate.py db/A000/A000045.c --width u32 -o A000045_u32.c   # defines A000045_u32()
+python3 tools/instantiate.py db/A000/A000045.c --width u32 -o A000045_u32.c
 python3 tools/instantiate.py db/A000/A000045.c --width u64 --inline -o A000045_u64.c
 python3 tools/instantiate.py db/A000/A000045.c --width big -o A000045_big.cpp --check
 ```
 
 Options:
 
-- `--width` (required) takes `u8`…`u128`, `i8`…`i128` or `big`. Use the signedness the database validated: unsigned for `nonn` sequences, signed otherwise. The tool warns when the width doesn't match.
-- `--index` sets the index type: `u8`…`u64` or `i8`…`i64`. The default is `uint64_t`, or `int64_t` when the offset is negative, which is what the database validated. The tool warns if an unsigned index can't reach a negative offset.
-- `-o` names the output file; without it the result goes to standard output.
-- `--check` checks the result compiles (`gcc -std=c11` or `g++ -std=gnu++17`, syntax only, with `-Wall`). It does not run it.
-
-Each output declares its function with the types it was made for, so the program that calls it declares it the same way. For example, with the first two files above:
-
-```c
-uint32_t A000045_u32(uint64_t n);
-uint64_t A000045_u64(uint64_t n);
-```
-
-```sh
-gcc -O2 main.c A000045_u32.c A000045_u64.c -lm
-g++ -std=gnu++17 -O2 -I db/runtime main.cpp A000045_big.cpp -lgmpxx -lgmp -lm   # oeis_big A000045_big(uint64_t n);
-```
-
-`--inline` goes further and substitutes every helper's body, shared or the file's own, into its callers, so the result is as close to the single function `a()` as can be done safely. In C a call becomes a GNU statement expression, `({ ... })`, which GCC and Clang accept even with `-std=c11`. In C++ (`big`) it becomes an immediately invoked lambda, because GCC miscompiles statement expressions that hold `oeis_big` values. A helper stays a function when inlining it would not be safe, and the tool lists those helpers on standard error. The reasons:
-
-- it is recursive, directly or through other helpers;
-- its address is taken, as with a `qsort` comparator;
-- it has `static` locals or labels;
-- it is defined inside `#if`;
-- it is declared or used at file scope, or inside a macro;
-- it has an array-typed or otherwise unusual parameter;
-- it uses a name its caller also declares.
-
-### Caveats
-
-- Some functions memoize terms in file-scope `static` state, so they are not thread-safe.
-- The 128-bit widths rely on `__int128`, a GCC/Clang extension.
-- `oeis_big` assumes an LP64 platform (64-bit `long`).
-- A few functions (A100724, A104589) test primality above 2^64 with Miller–Rabin to the first 20 prime bases, a probable-prime test. Below 2^64, primality tests are exact.
+- `--width` (required) takes `u8`…`u128`, `i8`…`i128`, or `big`
+- `--index` sets the index type: `u8`…`u64` or `i8`…`i64`. The default is `uint64_t`, or `int64_t`
+- `-o` names the output file
+- `--inline` attempts to substitute the helper bodies into the sequence function, creating a single function if possible. Usually less readable but self-contained
 
 ## Validation
 
-### At generation
-
-Each candidate function was compiled at every width and checked against:
-
-1. the terms listed in the OEIS entry, and
-2. a seeded uniform random sample of 16 terms from the entry's b-file beyond the listed ones. This separates a real implementation from a lookup table of the listed terms.
-
-A finite sequence whose terms are all known (keywords `fini` and `full`) with at most 1,000 terms beyond the listed ones is checked against all of them instead.
-
-A function was accepted when the arbitrary-precision build matched every checked term and the 64-bit build matched every checked term that fits. The other widths were measured and recorded in the Range line. When a candidate failed, the compiler errors or mismatched terms were fed back to the model for another attempt, until an attempt or time limit ran out. The model could also decline when there was no practical way to compute a sequence.
-
-### Re-validating: `tools/validate.py`
-
-`validate.py` rebuilds functions, checks them against the OEIS, and writes the results back into each file's Range and Validated lines and into `status.tsv` and `STATUS.md`. It needs Python 3, GCC, G++ and GMP (`libgmp-dev`), so in practice Linux, macOS or WSL. It also needs a clone of [oeisdata](https://github.com/oeis/oeisdata). B-files are fetched from oeis.org as needed and cached in `data/bfiles/`.
+`validate.py` builds functions, checks them against the OEIS, and writes the results back into each file's Range and Validated lines and into `status.tsv` and `STATUS.md`. It needs Python 3, GCC, G++ and GMP (`libgmp-dev`). It also needs a clone of [oeisdata](https://github.com/oeis/oeisdata). B-files are fetched from oeis.org as needed and cached in `data/bfiles/`.
 
 ```sh
 git clone --bare --depth 1 https://github.com/oeis/oeisdata.git data/oeisdata.git
@@ -198,7 +126,7 @@ The style sets which terms are checked:
 | `standard` (default) | those, plus a seeded random sample of the b-file terms beyond them: `--samples N`, default 16, which with `--seed` left alone is the same sample as at generation |
 | `full` | every term in the entry and the b-file |
 
-Each fixed width is also run at the last index whose term still fits in it, where an intermediate overflow is most likely to show. The bounds are only as good as the style: `partial` can't claim anything past the listed terms, and `standard` assumes the function is exact between the sampled points. As at generation, the result depends on the arbitrary-precision and 64-bit builds; the other widths only set bounds. A run without either of those two widths updates the bounds but leaves the recorded result alone, and widths not in a run keep the bounds they had. Each index has a time limit (`--run-timeout`, default 2 s), and each width's run has an overall limit (`--batch-timeout`, default 120 s). A function that runs out of time is bounded by the terms it finished.
+Each fixed width is also run at the last index whose term still fits in it, where an intermediate overflow is most likely to show. Each index has a time limit (`--run-timeout`, default 2 s), and each width's run has an overall limit (`--batch-timeout`, default 120 s). A function that runs out of time is bounded by the terms it finished.
 
 ### Status files
 
@@ -207,25 +135,17 @@ Each fixed width is also run at the last index whose term still fits in it, wher
 | Column | Meaning |
 |---|---|
 | `id` | A-number |
-| `status` | `implemented` (a file is in `db/`), `unimplemented`, or `skipped` (left out deliberately, with the reason in `note`) |
+| `status` | `implemented` (a file is in `db/`), `unimplemented`, or `skipped` (a generation run declined it or ran out of time; the reason is in `note`) |
 | `style` | how it was last validated: `full`, `standard` or `partial`. A `standard` run with no b-file to sample counts as `partial` |
 | `result` | `pass`, `mismatch`, `compile_error`, `runtime_error` or `timeout` |
 | `checked`, `max_n` | how many terms were checked with arbitrary precision, and the largest index among them |
 | `known_to` | the last index with a known term (entry, plus b-file unless the style was `partial`) |
 | `sign` | `u` (unsigned widths, for `nonn` sequences) or `i` (signed) |
 | `w8` … `w128`, `big` | the bound for each width, as in the Range line: the largest exact `n`, `none`, or `any` for `big` |
-| `note` | what went wrong, or why a sequence is skipped |
+| `note` | what went wrong, or why a sequence is skipped, as `category: reason` (`STATUS.md` counts the categories) |
 | `date` | when it was last validated |
 
-`validate.py` adds a row for every sequence in oeisdata. It marks a row `skipped` only if the row already says so, so to skip a sequence, set its `status` to `skipped` and put the reason in `note`. `STATUS.md` is generated from `status.tsv`: coverage, results by style, how many sequences each width holds through every known term, skip reasons, and the failures.
-
-## Generation
-
-The database was produced by `create_c_code_database.py` in the `oeis-project` repository (`tools/c_code_db/`), in three runs: two with Claude models and one with gpt-oss-20b. `tools/instantiate.py` and `db/runtime/oeis_big.hpp` come from there: the script has been made self-contained and its paths adjusted to this repo's layout.
-
-Each run left its own library of helpers, about 16,600 in all, mostly specific to one sequence and often the same routine under many names. They were then consolidated into `db/utils`: copies were matched by what they compute, every rewritten file was rebuilt at every width and compared with the original, and anything that did not match kept its original helper, inlined. [REFACTOR_REPORT.md](REFACTOR_REPORT.md) has the details, including the values that changed.
-
-A later fix round made every function compile at every width, run without undefined behavior, and match the OEIS, except two that are correct but too slow for their whole b-file (A005162, A007080). [FIXES_REPORT.md](FIXES_REPORT.md) describes it.
+`validate.py` adds a row for every sequence in oeisdata. `STATUS.md` is generated from `status.tsv`: coverage, results by style, skip reasons, and the failures.
 
 ## License
 

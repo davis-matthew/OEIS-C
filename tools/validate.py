@@ -77,17 +77,36 @@ ERRATA_TSV = Path(__file__).resolve().parent / "bfile_errata.tsv"
 
 
 def load_errata():
-    """{(A-number, n)} of b-file terms known to be wrong (tools/bfile_errata.tsv)."""
-    out = set()
+    """{A-number: [(lo, hi), ...]} of b-file terms known to be wrong
+    (tools/bfile_errata.tsv; the n column is an index or a range lo-hi)."""
+    out = {}
     if ERRATA_TSV.exists():
         for line in ERRATA_TSV.read_text().splitlines():
             parts = line.split("\t")
             if len(parts) >= 2 and not line.startswith("#"):
-                out.add((parts[0], int(parts[1])))
+                lo, _, hi = parts[1].partition("-")
+                out.setdefault(parts[0], []).append((int(lo), int(hi or lo)))
     return out
 
 
 ERRATA = load_errata()
+
+
+def is_erratum(anum, n):
+    return any(lo <= n <= hi for lo, hi in ERRATA.get(anum, ()))
+
+
+def as_ranges(ns):
+    """Sorted indices as "a, b..c, d" text."""
+    out, ns = [], sorted(ns)
+    i = 0
+    while i < len(ns):
+        j = i
+        while j + 1 < len(ns) and ns[j + 1] == ns[j] + 1:
+            j += 1
+        out.append(str(ns[i]) if i == j else f"{ns[i]}..{ns[j]}")
+        i = j + 1
+    return ", ".join(out)
 
 # oeis.org sits behind Cloudflare, which turns away urllib's default agent
 USER_AGENT = "OEIS-C validate.py"
@@ -589,12 +608,18 @@ def validate(path, entry, rows, widths, cfg, builder):
         notes.append(f"header offset {hoff.split()[0]} but the OEIS says {entry.offset}")
 
     max_n = cfg.max_n if cfg.max_n is not None else float("inf")
-    listed = [(n, v) for n, v in entry.pairs if n <= max_n]
-    known = dict(entry.pairs)
-    wrong = sorted(n for n, _ in rows if (entry.anum, n) in ERRATA)
+    # an erratum row covers the term wherever it is listed: the entry's own
+    # data (a typo there) as well as the b-file
+    wrong_listed = [n for n, _ in entry.pairs if is_erratum(entry.anum, n)]
+    if wrong_listed:
+        notes.append(f"entry term at n = {as_ranges(wrong_listed)} left out (known erratum)")
+    pairs = [(n, v) for n, v in entry.pairs if not is_erratum(entry.anum, n)]
+    listed = [(n, v) for n, v in pairs if n <= max_n]
+    known = dict(pairs)
+    wrong = [n for n, _ in rows if is_erratum(entry.anum, n)]
     if wrong:
-        notes.append(f"b-file term at n = {', '.join(map(str, wrong))} left out (known erratum)")
-        rows = [r for r in rows if (entry.anum, r[0]) not in ERRATA]
+        notes.append(f"b-file term at n = {as_ranges(wrong)} left out (known erratum)")
+        rows = [r for r in rows if not is_erratum(entry.anum, r[0])]
     # a b-file that contradicts the entry's own terms is out of date (the
     # entry was corrected after it): the terms are checked, the b-file is not
     bad = next((n for n, v in sorted(rows) if n in known and known[n] != v), None) if rows else None
@@ -834,40 +859,26 @@ def write_summary(rows, commit):
       "sample of the b-file; *partial*: the entry's terms only.")
     p()
 
-    checked = [r for r in impl if r["style"]]
-    if checked:
-        p("## Width bounds")
-        p()
-        p(f"For each width, of the {len(checked):,} validated sequences: how many it holds "
-          "exactly through the last known term, through only some of them, or not even the first.")
-        p()
-        p("| Width | All known terms | Some | None | Not checked |")
-        p("|---|---:|---:|---:|---:|")
-        for bits, col in WIDTH_COLS.items():
-            allk = some = none = unk = 0
-            for r in checked:
-                v = r[col]
-                if not v:
-                    unk += 1
-                elif v == "none":
-                    none += 1
-                elif v == "any" or (v.lstrip("-").isdigit() and r["known_to"]
-                                    and int(v) >= int(r["known_to"])):
-                    allk += 1
-                else:
-                    some += 1
-            name = "big" if bits == 0 else f"{bits}-bit"
-            p(f"| {name} | {allk:,} | {some:,} | {none:,} | {unk:,} |")
-        p()
-
-    skipped = Counter(r["note"] or "(no reason given)" for r in rows.values() if r["status"] == "skipped")
-    if skipped:
+    # a skip note is "<category>: <reason>"; the table counts the categories (the
+    # reasons themselves, one per sequence, are in status.tsv)
+    skips = sorted((r for r in rows.values() if r["status"] == "skipped"), key=lambda r: r["id"])
+    if skips:
+        cats, examples = Counter(), {}
+        for r in skips:
+            cat = (r["note"] or "(no reason given)").split(": ", 1)[0]
+            cats[cat] += 1
+            examples.setdefault(cat, []).append(r["id"])
         p("## Skipped")
         p()
-        p("| Reason | Sequences |")
-        p("|---|---:|")
-        for reason, n in skipped.most_common():
-            p(f"| {reason} | {n:,} |")
+        p(f"{len(skips):,} sequences that no generation run could implement: the model declined "
+          "(said there is no practical way to compute it) or the generation ran out of time. "
+          "status.tsv gives each one's reason.")
+        p()
+        p("| Reason | Sequences | Examples |")
+        p("|---|---:|---|")
+        for cat, n in cats.most_common():
+            ex = ", ".join(f"[{a}](https://oeis.org/{a})" for a in examples[cat][:3])
+            p(f"| {cat} | {n:,} | {ex} |")
         p()
 
     failing = sorted((r for r in impl if r["result"] not in ("", "pass")), key=lambda r: r["id"])
