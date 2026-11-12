@@ -7,8 +7,8 @@ status.tsv has one row per OEIS sequence; its columns are described in the READM
 
 | Status | Sequences | Share |
 |---|---:|---:|
-| implemented | 150,354 | 37.5% |
-| unimplemented | 83,475 | 20.8% |
+| implemented | 150,356 | 37.5% |
+| unimplemented | 83,473 | 20.8% |
 | skipped | 167,125 | 41.7% |
 | **total** | **400,954** | |
 
@@ -17,7 +17,7 @@ status.tsv has one row per OEIS sequence; its columns are described in the READM
 | Style | pass | mismatch | compile_error | runtime_error | timeout | total |
 |---|---:|---:|---:|---:|---:|---:|
 | full | 3,496 | 0 | 0 | 0 | 0 | 3,496 |
-| standard | 92,317 | 0 | 0 | 0 | 2 | 92,319 |
+| standard | 92,319 | 0 | 0 | 0 | 2 | 92,321 |
 | partial | 54,539 | 0 | 0 | 0 | 0 | 54,539 |
 
 *full*: every term in the entry and b-file; *standard*: the entry's terms and a random sample of the b-file; *partial*: the entry's terms only.
